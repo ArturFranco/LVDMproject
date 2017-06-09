@@ -1,5 +1,7 @@
 import numpy as np
 import pandas as pd
+#pip install --user julia #installing julia module without root access
+
 
 # I(Pc), I(Pai), I(Pc ^ Pai)
 
@@ -50,6 +52,7 @@ for attribute in attributes:
     distances[attribute] = treeDistance(exemplo, attribute)
 print(distances)
 
+#Calling Julia inside Python
 # import julia
 # j = julia.Julia()
-# j.include("vdm_om.jl")
+# # j.include("vdm_om.jl")

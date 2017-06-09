@@ -7,6 +7,11 @@ using DataFrames
 using Gadfly
 using PyCall
 
+#função pra testar o retorno no python
+function sum(x, y)
+    return x+y
+end
+
 # df = dataframe of DB
 # class = class column number starting from 1
 # return = dataframe with class colunm as the last column of df
@@ -176,17 +181,16 @@ end
 ######################################
 #                Main                #
 ######################################
-
-############ FIRST DB ############## 
-println("** INICIANDO JULIA **")
-#Take DB and save it on a DataFrame
-train = readtable("db_train.csv", ',', header = false)
-test = readtable("db_test.csv", ',', header = false)
-train = prettyDf(train, cols(train)) #Put "Class" column on DF
-test = prettyDf(train, cols(train)) #Put "Class" column on DF
-#Using kNN
-k = 10
-classes = @time(kNN(k[i], train, test, false))
-#Calculating accuracy of this kNN
-accuracy = mean(classes .== test[cols(test)])
-
+# println("** INICIO JULIA **")
+# train = readtable("db_train.csv", ',', header = false)
+# test = readtable("db_test.csv", ',', header = false)
+# train = prettyDf(train, cols(train)) #Put "Class" column on DF
+# test = prettyDf(test, cols(test)) #Put "Class" column on DF
+# k = 10
+# classes = @time(kNN(k, train, test, false))
+# accuracy = mean(classes .== test[cols(test)])
+# open("result.txt", "w") do f
+#     write(f, accuracy)
+# end
+# println("Acurária: " + accuracy)
+# println("** FIM JULIA **")
