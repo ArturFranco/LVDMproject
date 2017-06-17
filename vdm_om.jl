@@ -1,14 +1,9 @@
-# TO EXECUTE:
-# cd("this file and BDs files directory path")
-# include("questao_1.jl")
-
-# Pkg.add("PyCall")
 using DataFrames
 using Gadfly
 using PyCall
 
 #função pra testar o retorno no python
-function sum(x, y)
+function soma(x, y)
     return x+y
 end
 
@@ -112,6 +107,7 @@ function OM(a, b)
     for i in 1:(cols(a)-1) #loop through attributes
         if(a[1, i] != b[1, i])
             result = result + 1
+        end
     end
     return result
 end

@@ -43,16 +43,17 @@ def treeDistance(dataset, attribute):
     return 2 - term1 - term2
 
 ### MAIN
-exemplo = pd.read_csv('db.csv',header=None)
-exemplo.columns = ['aspecto','temperatura','humidade','vento','classe']
-attributes = exemplo.columns
-attributes = attributes[:-1]
-distances = {}
-for attribute in attributes:
-    distances[attribute] = treeDistance(exemplo, attribute)
-print(distances)
+# exemplo = pd.read_csv('db.csv',header=None)
+# exemplo.columns = ['aspecto','temperatura','humidade','vento','classe']
+# attributes = exemplo.columns
+# attributes = attributes[:-1]
+# distances = {}
+# for attribute in attributes:
+#     distances[attribute] = treeDistance(exemplo, attribute)
+# print(distances)
 
-#Calling Julia inside Python
-# import julia
-# j = julia.Julia()
-# # j.include("vdm_om.jl")
+# Calling Julia inside Python
+import julia
+j = julia.Julia()
+j.include("vdm_om.jl")
+print(j.eval("soma(2,3)"))
