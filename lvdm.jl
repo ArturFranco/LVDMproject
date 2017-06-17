@@ -99,11 +99,27 @@ function createTable(train)
     return table
 end
 
+# tree = global parameter
+# q = predeterminated parameter (= 30)
+# y = test instance
+# return = LVDM distance of two instances (x,y) and neighbors of y
+function LVDM(q, y)
+    vet = searchTree(y, q)
+    df = train[vet,:]
+    table = createTable(df)
+    distances = Array(Float32, nrow(df))
+    for i in 1:nrow(df)
+        distances[i] = VDM(df, table, df[i,:], y)
+    end
+    return distances, df
+end
+
 # a = train instance
 # b = test instance
+# return = OM distance of two instances (a, b)
 function OM(a, b)
     result = 0
-    for i in 1:(cols(a)-1) #loop through attributes
+    for i in 1:(ncol(a)-1) #loop through attributes
         if(a[1, i] != b[1, i])
             result = result + 1
         end
@@ -155,19 +171,42 @@ end
 # train = train dataframe
 # test = test dataframe
 # flag = true if Weighted kNN
+# dist = distance function (VDM, OM or LVDM)
 # return = classes of the test instances
-function kNN(k, train, test, flag)
+function kNN(k, train, test, flag, dist)
     trows, tcols = size(test)
     rows, columns = size(train)
     classes = Array(String, trows)
-    table = createTable(train)
-    for j in 1:trows
-        distances = Array(Float32, rows)
-        for i in 1:rows
-            distances[i] = VDM(train, table, train[i,:], test[j,:])
+    if(dist == "VDM")
+        table = createTable(train)
+        for j in 1:trows
+            distances = Array(Float32, rows)
+            for i in 1:rows
+                distances[i] = VDM(train, table, train[i,:], test[j,:])
+            end
+            neighbors = findNeighbors(k, distances, train, flag)
+            classes[j] = classifier(neighbors)
         end
-        neighbors = findNeighbors(k, distances, train, flag)
-        classes[j] = classifier(neighbors)
+    elseif(dist == "OM")
+        for j in 1:trows
+            distances = Array(Float32, rows)
+            for i in 1:rows
+                distances[i] = OM(train[i,:], test[j,:])
+            end
+            neighbors = findNeighbors(k, distances, train, flag)
+            classes[j] = classifier(neighbors)
+        end
+    else #LVDM
+        q = 30
+        instances = collect(1:1:nrow(train))
+        println("Construindo árvore...")
+        @time(growTree(instances, 1, q))
+        println("Árvore construida!")
+        for i in 1:trows
+            distances, df = LVDM(q, test[i,:])
+            neighbors = findNeighbors(k, distances, df, flag)
+            classes = classifier(neighbors)
+        end
     end
     return classes
 end
@@ -176,26 +215,33 @@ end
 ######################################
 #                Main                #
 ######################################
-println("\n\n** INICIO LVDM **")
-train = readtable("db.csv", separator = ',')
+# println("\n\n** INÍCIO LVDM **")
 # train = readtable("db_train.csv", separator = ',', header = false)
 # test = readtable("db_test.csv", separator = ',', header = false)
-# train = prettyDf(train, cols(train)) #Put "Class" column on DF
-# test = prettyDf(test, cols(test)) #Put "Class" column on DF
+# train = prettyDf(train, ncol(train)) #Put "Class" column on DF
+# test = prettyDf(test, ncol(test)) #Put "Class" column on DF
+# attributes = map((x) -> string(x), names(train))
+# attributes = attributes[1:(length(attributes) - 1)] #Take out the class
 # k = 10
-# classes = @time(kNN(k, train, test, false))
-# accuracy = mean(classes .== test[cols(test)])
-# open("result.txt", "w") do f
-#     write(f, accuracy)
-# end
-# println("Acurária: " + accuracy)
-# println("** FIM JULIA **")
+# # classes1 = @time(kNN(k, train, test, true, "VDM")) #0.85
+# # accuracy1 = mean(classes1 .== test[ncol(test)])
+# # classes2 = @time(kNN(k, train, test, true, "OM"))
+# # accuracy2 = mean(classes2 .== test[ncol(test)])
+# tree = Tree([]) #Create global tree
+# classes3 = @time(kNN(k, train, test, false, "LVDM"))
+# accuracy3 = mean(classes3 .== test[ncol(test)])
+# # open("result.txt", "w") do f
+# #     write(f, accuracy)
+# # end
+# println("Árvore: ")
+# # for i in 1:length(tree.nodes)
+# #     println(tree.nodes[i])
+# # end
 
 
+########## TEST ####################################################################################
 # criação da árvore global
 tree = Tree([])
-
-## MAIN
 train = readtable("db.csv", separator = ',')
 # lista de atributos que vai ser modificada conforme a árvore vai sendo construida GLOBAL
 attributes = map((x) -> string(x), names(train))
@@ -208,3 +254,4 @@ println("Árvore: ")
 for i in 1:length(tree.nodes)
     println(tree.nodes[i])
 end
+####################################################################################################
