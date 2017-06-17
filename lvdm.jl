@@ -1,11 +1,10 @@
+# EXECUTAR: 
+# Entrar na pasta do projeto pelo terminal;
+# Abrir julia;
+# include("lvdm.jl")
 using DataFrames
-using Gadfly
-using PyCall
-
-#função pra testar o retorno no python
-function soma(x, y)
-    return x+y
-end
+include("./distance.jl")
+include("./tree.jl")
 
 # df = dataframe of DB
 # class = class column number starting from 1
@@ -177,9 +176,10 @@ end
 ######################################
 #                Main                #
 ######################################
-# println("** INICIO JULIA **")
-# train = readtable("db_train.csv", ',', header = false)
-# test = readtable("db_test.csv", ',', header = false)
+println("\n\n** INICIO LVDM **")
+train = readtable("db.csv", separator = ',')
+# train = readtable("db_train.csv", separator = ',', header = false)
+# test = readtable("db_test.csv", separator = ',', header = false)
 # train = prettyDf(train, cols(train)) #Put "Class" column on DF
 # test = prettyDf(test, cols(test)) #Put "Class" column on DF
 # k = 10
@@ -190,3 +190,21 @@ end
 # end
 # println("Acurária: " + accuracy)
 # println("** FIM JULIA **")
+
+
+# criação da árvore global
+tree = Tree([])
+
+## MAIN
+train = readtable("db.csv", separator = ',')
+# lista de atributos que vai ser modificada conforme a árvore vai sendo construida GLOBAL
+attributes = map((x) -> string(x), names(train))
+attributes = attributes[1:(length(attributes) - 1)] #tira classe
+q = 4
+instances = collect(1:1:nrow(train))
+growTree(instances, 1, q)
+
+println("Árvore: ")
+for i in 1:length(tree.nodes)
+    println(tree.nodes[i])
+end
