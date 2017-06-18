@@ -15,7 +15,7 @@ end
 type TreeNode
     parent::Int # vector ID of parent node
     value::String # "attribute_value"
-    instances::Vector{Int} 
+    instances::Vector{Int}
     children::Vector{Int} # vector IDs of children nodes
 end
 
@@ -36,12 +36,12 @@ function growTree(instances, parent, q)
     if(length(instances) < q || length(attributes) == 0) #verificar isso aqui :)
         return ""
     end
-    distances = callDistance(instances, attributes) # distances vector 
+    distances = callDistance(instances, attributes) # distances vector
     indexs = sortperm(distances) # return lowest value to highest value indexs
     if(distances[indexs[1]] == 1.0)
         return "" 
     end
-    attr = attributes[indexs[1]] 
+    attr = attributes[indexs[1]]
     deleteat!(attributes, find(attributes .== attr)) # delete attribute from global attributes list
     df = train[instances, :]
     groups = by(df, parse(attr), nrow)

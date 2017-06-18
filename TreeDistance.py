@@ -43,17 +43,44 @@ def treeDistance(dataset, attribute):
     return 2 - term1 - term2
 
 ### MAIN
-# exemplo = pd.read_csv('db.csv',header=None)
-# exemplo.columns = ['aspecto','temperatura','humidade','vento','classe']
-# attributes = exemplo.columns
-# attributes = attributes[:-1]
-# distances = {}
-# for attribute in attributes:
-#     distances[attribute] = treeDistance(exemplo, attribute)
-# print(distances)
+exemplo = pd.read_csv('db.csv',header=None)
 
-# Calling Julia inside Python
-import julia
-j = julia.Julia()
-j.include("vdm_om.jl")
-print(j.eval("soma(2,3)"))
+exemplo.columns = ['aspecto','temperatura','humidade','vento','classe']
+print(I_Pc(exemplo))
+print(I_PAi(exemplo,'aspecto'))
+print(I_Pc_inter_PAi(exemplo,'aspecto'))
+print(treeDistance(exemplo,'aspecto'))
+attributes = exemplo.columns
+print(exemplo)
+attributes = attributes[:-1]
+distances = {}
+aux = []
+for attribute in attributes:
+    distances[attribute] = treeDistance(exemplo, attribute)
+    aux.append(treeDistance(exemplo, attribute))
+aux.sort()
+print(distances)
+print(aux)
+
+df1 = exemplo.iloc[[3,4,5,9,13]]
+print(df1)
+attributes = ['temperatura','humidade','vento']
+distances = {}
+aux = []
+for attribute in attributes:
+    distances[attribute] = treeDistance(df1, attribute)
+    aux.append(treeDistance(df1, attribute))
+aux.sort()
+print(distances)
+print(aux)
+
+
+
+#df1 = exemplo.iloc[[0,1,7,8,10]]
+#df2 = exemplo.iloc[[2,6,11,12]]
+#df3 = exemplo.iloc[[3,4,5,9,13]]
+
+#Calling Julia inside Python
+# import julia
+# j = julia.Julia()
+# # j.include("vdm_om.jl")

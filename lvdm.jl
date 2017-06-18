@@ -1,4 +1,4 @@
-# EXECUTAR: 
+# EXECUTAR:
 # Entrar na pasta do projeto pelo terminal;
 # Abrir julia;
 # include("lvdm.jl")
@@ -15,7 +15,7 @@ function prettyDf(df, class)
     return df
 end
 
-# db = DB dataframe 
+# db = DB dataframe
 # p = separation percentage for train dataframe
 function train_test(df, p)
     rows, cols = size(df)
@@ -34,7 +34,7 @@ function classifier(df)
 end
 
 # k = n neighbor(s)
-# a = distance array 
+# a = distance array
 # train = train dataframe
 # flag = true if Weighted kNN
 # return = DataFrame with neighbors classes
@@ -54,7 +54,7 @@ function findNeighbors(k, a, train, flag)
             push!(neighbors, [train[indexs[i], tcols]])
         end
         neighbors1 = by(neighbors, :Class, d -> DataFrame(Count=nrow(d)))
-    end    
+    end
     return neighbors1
 end
 
@@ -70,13 +70,13 @@ function createTable(train)
         for c in 1:len #loop through classes
             df = df_class[c]
             class_name = df[1, :Class]
-            df_attribute_class = by(df, i, d -> DataFrame(Count=nrow(d)))           
+            df_attribute_class = by(df, i, d -> DataFrame(Count=nrow(d)))
             for row in eachrow(df_attribute_class)
                 row_name = string(attr_names[i], "_", row[1])
                 n = row[:Count]
                 push!(table, [row_name, class_name, n])
             end
-        end            
+        end
     end
     df = by(table, 1, d -> DataFrame(Ni=sum(d[:Nic])))
     table[:Prob] = 0.0
@@ -87,7 +87,7 @@ function createTable(train)
                 if(row[:Prob] > 1)
                     println("erro!")
                 end
-            end    
+            end
         end
     end
     delete!(df, [:Attr, :Ni])
@@ -103,15 +103,12 @@ end
 # q = predeterminated parameter (= 30)
 # y = test instance
 # return = LVDM distance of two instances (x,y) and neighbors of y
-function LVDM(q, y)
-    vet = searchTree(y, q)
+function LVDM(train, T, q, x, y)
+    vet = searchTree(T, q, y)
     df = train[vet,:]
     table = createTable(df)
-    distances = Array(Float32, nrow(df))
-    for i in 1:nrow(df)
-        distances[i] = VDM(df, table, df[i,:], y)
-    end
-    return distances, df
+    distance = VDM(df, table, x, y)
+    return distance
 end
 
 # a = train instance
@@ -131,7 +128,7 @@ end
 # table = probabilities dataframe
 # a = train instance
 # b = test instance
-# return = VDM distance of two instances (a,b) 
+# return = VDM distance of two instances (a,b)
 function VDM(train, table, a, b)
     rows, cols = size(train)
     class_names = levels(train[cols])
@@ -142,7 +139,7 @@ function VDM(train, table, a, b)
         for c in 1:length(class_names) #loop through classes
             ra = string(attr_names[i], "_", a[1, i], "_", class_names[c])
             rb = string(attr_names[i], "_", b[1, i], "_", class_names[c])
-            Piac, Pibc = 0.0, 0.0 
+            Piac, Pibc = 0.0, 0.0
             flaga, flagb = true, true
             for row in eachrow(table)
                 if(ra == row[:Attr] && flaga)
@@ -158,7 +155,7 @@ function VDM(train, table, a, b)
                 end
             end
             #println("Piac: ", Piac, " Pibc: ", Pibc)
-            sub = Piac - Pibc 
+            sub = Piac - Pibc
             s = s + (sub * sub)
         end
         result = result + s
@@ -202,10 +199,14 @@ function kNN(k, train, test, flag, dist)
         println("Construindo árvore...")
         @time(growTree(instances, 1, q))
         println("Árvore construida!")
-        for i in 1:trows
-            distances, df = LVDM(q, test[i,:])
-            neighbors = findNeighbors(k, distances, df, flag)
-            classes = classifier(neighbors)
+        #perguntar disso aqui
+        for j in 1:trows
+            distances = Array(Float32, rows)
+            for i in 1:rows
+                distances[i] = LVDM(train, T, q, train[i,:], test[j,:])
+            end
+            neighbors = findNeighbors(k, distances, train, flag)
+            classes[j] = classifier(neighbors)
         end
     end
     return classes
@@ -238,15 +239,14 @@ end
 # #     println(tree.nodes[i])
 # # end
 
-
 ########## TEST ####################################################################################
 # criação da árvore global
 tree = Tree([])
-train = readtable("db.csv", separator = ',')
+train = readtable("db.csv", separator = ',', header = false)
 # lista de atributos que vai ser modificada conforme a árvore vai sendo construida GLOBAL
 attributes = map((x) -> string(x), names(train))
 attributes = attributes[1:(length(attributes) - 1)] #tira classe
-q = 4
+q = 3
 instances = collect(1:1:nrow(train))
 growTree(instances, 1, q)
 
