@@ -29,7 +29,7 @@ end
 # parent = parent of the node, 1 for root
 # q = predeterminated parameter
 # return = return nothing but update global tree
-function growTree(instances, parent, q, attributes)
+function growTree(tree, instances, parent, q, attributes)
     if(parent ==  1) # é raiz
         push!(tree.nodes, TreeNode(0, "root", instances, []))
     end

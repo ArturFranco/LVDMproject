@@ -99,8 +99,10 @@ function createTable(train)
     return table
 end
 
-# tree = global parameter
+# train = train dataset
+# T = local tree
 # q = predeterminated parameter (= 30)
+# x = train instance
 # y = test instance
 # return = LVDM distance of two instances (x,y) and neighbors of y
 function LVDM(train, T, q, x, y)
@@ -170,7 +172,7 @@ end
 # flag = true if Weighted kNN
 # dist = distance function (VDM, OM or LVDM)
 # return = classes of the test instances
-function kNN(k, train, test, flag, dist)
+function kNN(k, train, test, flag, dist, T)
     trows, tcols = size(test)
     rows, columns = size(train)
     classes = Array(String, trows)
@@ -195,15 +197,16 @@ function kNN(k, train, test, flag, dist)
         end
     else #LVDM
         q = 30
+        tree = Tree([])
         instances = collect(1:1:nrow(train))
         println("Construindo árvore...")
-        @time(growTree(instances, 1, q))
+        @time(growTree(tree, instances, 1, q))
         println("Árvore construida!")
         #perguntar disso aqui
         for j in 1:trows
             distances = Array(Float32, rows)
             for i in 1:rows
-                distances[i] = LVDM(train, T, q, train[i,:], test[j,:])
+                distances[i] = LVDM(train, tree, q, train[i,:], test[j,:])
             end
             neighbors = findNeighbors(k, distances, train, flag)
             classes[j] = classifier(neighbors)
