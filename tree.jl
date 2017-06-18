@@ -29,11 +29,11 @@ end
 # parent = parent of the node, 1 for root
 # q = predeterminated parameter
 # return = return nothing but update global tree
-function growTree(instances, parent, q)
+function growTree(instances, parent, q, attributes)
     if(parent ==  1) # é raiz
         push!(tree.nodes, TreeNode(0, "root", instances, []))
     end
-    if(length(instances) < q || length(attributes) == 0) #verificar isso aqui :)
+    if(length(instances) < q || length(attributes) == 0)
         return ""
     end
     distances = callDistance(instances, attributes) # distances vector 
@@ -42,17 +42,17 @@ function growTree(instances, parent, q)
         return "" 
     end
     attr = attributes[indexs[1]] 
-    deleteat!(attributes, find(attributes .== attr)) # delete attribute from global attributes list
     df = train[instances, :]
     groups = by(df, parse(attr), nrow)
     for i in 1:nrow(groups)
+        deleteat!(attributes, find(attributes .== attr)) # delete attribute from global attributes list
         value = string(attr, "_", groups[i, 1])
         ids = find(df[parse(attr)] .== groups[i, 1])
         new_instances = instances[ids]
         push!(tree.nodes, TreeNode(parent, value, new_instances, []))
         new_node = length(tree.nodes)
         push!(tree.nodes[parent].children, new_node)
-        growTree(new_instances, new_node, q)
+        growTree(new_instances, new_node, q, copy(attributes))
     end
     return ""
 end

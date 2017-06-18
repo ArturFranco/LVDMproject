@@ -246,9 +246,10 @@ train = readtable("db.csv", separator = ',')
 # lista de atributos que vai ser modificada conforme a árvore vai sendo construida GLOBAL
 attributes = map((x) -> string(x), names(train))
 attributes = attributes[1:(length(attributes) - 1)] #tira classe
+attrs = copy(attributes)
 q = 4
 instances = collect(1:1:nrow(train))
-growTree(instances, 1, q)
+growTree(instances, 1, q, attrs)
 
 println("Árvore: ")
 for i in 1:length(tree.nodes)
