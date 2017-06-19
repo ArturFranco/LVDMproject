@@ -239,9 +239,9 @@ end;
 ######################################
 println("\n\n** INÍCIO RUN TEST **")
 
-bds = ["db_tictactoe"]
+bds = ["balance-scale","car","connect4","monks1","monks2","mushroom"];
 
-dists = ["OM"]
+dists = ["OM","VDM"]
 
 #inicializando vetor de acuracia
 accuracy = Vector(length(bds))

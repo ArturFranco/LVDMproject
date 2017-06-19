@@ -1,9 +1,10 @@
 using DataFrames
 
-bds = ["db_tictactoe"];
+folder = "BDs\ tratados//"
+bds = ["balance-scale","car","connect4","monks1","monks2","mushroom"];
 k = 5
 for bd in bds
-    df = readtable(string(bd,".data"), separator = ',',header=false)
+    df = readtable(string(folder,bd,".csv"), separator = ',',header=false)
     srand(nrow(df))
     df[:id] = rand(nrow(df))
 
