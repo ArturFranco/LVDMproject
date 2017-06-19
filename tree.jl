@@ -60,19 +60,69 @@ end;
 # tree = global tree
 # y = test instance
 # q = predeterminated parameter
-#Aspecto =
-function searchTree(train, T, q, y)
+function searchTree(train, Tree, q, y)
 
     columns = map((x) -> string(x), names(train))
 
-    children = tree.nodes[1].children
-
-    for child in children
-        for col in columns
-
+    children = Tree.nodes[1].children
+    flag = 1
+    result = Any
+    parent = 1
+    while (flag == 1)
+        aux = Any
+        try
+            aux = split(Tree.nodes[children[1]].value,'_')[1]
+            println(aux)
+        catch
+            result = Tree.nodes[parent].instances
+            if (length(result) < q)
+                result = Tree.nodes[Tree.nodes[parent].parent].instances
+            end
+            flag = 0
+        end
+        if (flag != 0)
+            value = y[1,parse(aux)]
+            i = 0
+            for child in children
+                if (Tree.nodes[child].value == string(aux,"_",value))
+                    i = child
+                    break
+                end
+            end
+            if (i == 0)
+                result = Tree.nodes[parent].instances
+                flag = 0
+            end
+            parent = i
+            children = Tree.nodes[i].children
         end
     end
+    return result
 end;
+
+# tree = Tree([])
+# train = readtable("db.csv", separator = ',', header = false)
+# # lista de atributos que vai ser modificada conforme a árvore vai sendo construida GLOBAL
+# attributes = map((x) -> string(x), names(train))
+# attributes = attributes[1:(length(attributes) - 1)] #tira classe
+# attrs = copy(attributes)
+# q = 4
+# instances = collect(1:1:nrow(train))
+# growTree(tree,train,instances, 1, q, attrs)
+#
+# println("Árvore: ")
+# for i in 1:length(tree.nodes)
+#     println(tree.nodes[i])
+# end
+#
+# aux = train[1,:]
+# aux[1,1] = "chuva"
+# aux[1,2] = "normal" # não usa
+# aux[1,3] = "elevada"
+# aux[1,4] = "forte"
+# print(aux)
+# vet = searchTree(train,tree, 2, aux)
+# println(vet)
 # parent::Int # vector ID of parent node
 # value::String # "attribute_value"
 # instances::Vector{Int}

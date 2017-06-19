@@ -239,8 +239,8 @@ end;
 ######################################
 println("\n\n** INÍCIO RUN TEST **")
 
-bds = ["balance-scale","car","connect4","monks1","monks2","mushroom"];
-
+bds = ["car"];
+#"balance-scale","car","monks1","monks2","mushroom"
 dists = ["OM","VDM"]
 
 #inicializando vetor de acuracia
@@ -255,6 +255,8 @@ end
 
 k = 10
 for bd in (1:length(bds))
+    train = []
+    test = []
     for i in (1:5)
         train, test = joinBds(bds[bd],i)
         train = prettyDf(train, ncol(train)) #Put "Class" column on DF
