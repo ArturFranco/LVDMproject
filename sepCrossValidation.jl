@@ -1,7 +1,7 @@
 using DataFrames
 
 folder = "BDs\ tratados//"
-bds = ["balance-scale","car","connect4","monks1","monks2","mushroom"];
+bds = ["zoo"];
 k = 5
 for bd in bds
     df = readtable(string(folder,bd,".csv"), separator = ',',header=false)

@@ -172,7 +172,7 @@ end;
 # flag = true if Weighted kNN
 # dist = distance function (VDM, OM or LVDM)
 # return = classes of the test instances
-function kNN(k, train, test, flag, dist, T)
+function kNN(k, train, test, flag, dist, Tree)
     trows, tcols = size(test)
     rows, columns = size(train)
     classes = Array(String, trows)
@@ -196,17 +196,12 @@ function kNN(k, train, test, flag, dist, T)
             classes[j] = classifier(neighbors)
         end
     else #LVDM
-        q = 30
-        tree = Tree([])
-        instances = collect(1:1:nrow(train))
-        println("Construindo árvore...")
-        @time(growTree(tree, instances, 1, q))
-        println("Árvore construida!")
         #perguntar disso aqui
         for j in 1:trows
+            q = 30
             distances = Array(Float32, rows)
             for i in 1:rows
-                distances[i] = LVDM(train, tree, q, train[i,:], test[j,:])
+                distances[i] = LVDM(train, Tree, q, train[i,:], test[j,:])
             end
             neighbors = findNeighbors(k, distances, train, flag)
             classes[j] = classifier(neighbors)
@@ -239,24 +234,25 @@ end;
 ######################################
 println("\n\n** INÍCIO RUN TEST **")
 
-bds = ["car"];
-#"balance-scale","car","monks1","monks2","mushroom"
-dists = ["OM","VDM"]
+bds = ["zoo","breast-cancer","primary-tumor"];
+#"balance-scale","car","monks1","monks2","mushroom","zoo","breast-cancer","primary-tumor"
+dists = ["OM","VDM","LVDM"]
+#"OM","VDM","LVDM"
 
 #inicializando vetor de acuracia
 accuracy = Vector(length(bds))
-aux = Vector(length(dists))
-for i in (1:length(dists))
-    aux[i] = Vector(5)
-end
-for i in (1:length(accuracy))
-    accuracy[i] = aux
-end
 
 k = 10
 for bd in (1:length(bds))
     train = []
     test = []
+    #test
+    aux = Vector(length(dists))
+    for j in (1:length(dists))
+        aux[j] = Vector(5)
+    end
+
+    accuracy[bd] = aux
     for i in (1:5)
         train, test = joinBds(bds[bd],i)
         train = prettyDf(train, ncol(train)) #Put "Class" column on DF
@@ -266,12 +262,18 @@ for bd in (1:length(bds))
 
         for dist in (1:length(dists))
             tree = NA
+            q = Any
+
+
+
             if (dists[dist] == "LVDM")
                 tree = Tree([])
                 attrs = copy(attributes)
-                q = 4
+                q = 30
                 instances = collect(1:1:nrow(train))
-                growTree(tree,train,instances, 1, q, attrs)
+                println("Construindo árvore...")
+                @time(growTree(tree,train,instances, 1, q, attrs))
+                println("Árvore construida!")
             end
             classes1 = @time(kNN(k, train, test, true, dists[dist], tree))
             accuracy1 = mean(classes1 .== test[ncol(test)])

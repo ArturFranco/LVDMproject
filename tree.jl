@@ -72,7 +72,7 @@ function searchTree(train, Tree, q, y)
         aux = Any
         try
             aux = split(Tree.nodes[children[1]].value,'_')[1]
-            println(aux)
+            #println(aux)
         catch
             result = Tree.nodes[parent].instances
             if (length(result) < q)
@@ -94,7 +94,9 @@ function searchTree(train, Tree, q, y)
                 flag = 0
             end
             parent = i
-            children = Tree.nodes[i].children
+            if (i != 0)
+                children = Tree.nodes[i].children
+            end
         end
     end
     return result
