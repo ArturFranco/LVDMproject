@@ -1,7 +1,7 @@
 # instances = vector of instances
 # attributes = list of attributes
 # return = vector with all DN distances
-function callDistance(instances, attributes)
+function callDistance(train, instances, attributes)
     columns = map((x) -> string(x), names(train))
     distances = []
     df = train[instances, :]
@@ -10,7 +10,7 @@ function callDistance(instances, attributes)
         push!(distances, treeDistance(df, col[1]))
     end
     return distances
-end
+end;
 
 type TreeNode
     parent::Int # vector ID of parent node
@@ -29,14 +29,14 @@ end
 # parent = parent of the node, 1 for root
 # q = predeterminated parameter
 # return = return nothing but update global tree
-function growTree(tree, instances, parent, q, attributes)
+function growTree(tree, train,instances, parent, q, attributes)
     if(parent ==  1) # é raiz
         push!(tree.nodes, TreeNode(0, "root", instances, []))
     end
     if(length(instances) < q || length(attributes) == 0)
         return ""
     end
-    distances = callDistance(instances, attributes) # distances vector
+    distances = callDistance(train,instances, attributes) # distances vector
     indexs = sortperm(distances) # return lowest value to highest value indexs
     if(distances[indexs[1]] == 1.0)
         return ""
@@ -52,14 +52,28 @@ function growTree(tree, instances, parent, q, attributes)
         push!(tree.nodes, TreeNode(parent, value, new_instances, []))
         new_node = length(tree.nodes)
         push!(tree.nodes[parent].children, new_node)
-        growTree(new_instances, new_node, q, copy(attributes))
+        growTree(tree, train,new_instances, new_node, q, copy(attributes))
     end
     return ""
-end
+end;
 
 # tree = global tree
 # y = test instance
 # q = predeterminated parameter
-function searchTree(y, q)
-    return [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20]
-end
+#Aspecto =
+function searchTree(train, T, q, y)
+
+    columns = map((x) -> string(x), names(train))
+
+    children = tree.nodes[1].children
+
+    for child in children
+        for col in columns
+
+        end
+    end
+end;
+# parent::Int # vector ID of parent node
+# value::String # "attribute_value"
+# instances::Vector{Int}
+# children::Vector{Int} # vector IDs of children nodes

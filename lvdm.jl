@@ -3,8 +3,8 @@
 # Abrir julia;
 # include("lvdm.jl")
 using DataFrames
-include("./distance.jl")
-include("./tree.jl")
+include("./distance.jl");
+include("./tree.jl");
 
 # df = dataframe of DB
 # class = class column number starting from 1
@@ -13,7 +13,7 @@ function prettyDf(df, class)
     df[:Class] = df[class]
     delete!(df, class)
     return df
-end
+end;
 
 # db = DB dataframe
 # p = separation percentage for train dataframe
@@ -23,7 +23,7 @@ function train_test(df, p)
     train = df[1:limA,:]
     test = df[limA+1:rows,:]
     return train, test
-end
+end;
 
 # df = dataframe with grouped by class neighbors and count column
 # return = class of tested instance
@@ -31,7 +31,7 @@ function classifier(df)
     result = sort(df, cols = :Count)
     rows, cols = size(result)
     return result[rows, :Class]
-end
+end;
 
 # k = n neighbor(s)
 # a = distance array
@@ -56,7 +56,7 @@ function findNeighbors(k, a, train, flag)
         neighbors1 = by(neighbors, :Class, d -> DataFrame(Count=nrow(d)))
     end
     return neighbors1
-end
+end;
 
 # train = train dataframe
 # return = dataframe with all instances quantity given the classes
@@ -97,7 +97,7 @@ function createTable(train)
     end
     delete!(table, :Class)
     return table
-end
+end;
 
 # train = train dataset
 # T = local tree
@@ -106,12 +106,12 @@ end
 # y = test instance
 # return = LVDM distance of two instances (x,y) and neighbors of y
 function LVDM(train, T, q, x, y)
-    vet = searchTree(T, q, y)
+    vet = searchTree(train, T, q, y)
     df = train[vet,:]
     table = createTable(df)
     distance = VDM(df, table, x, y)
     return distance
-end
+end;
 
 # a = train instance
 # b = test instance
@@ -124,7 +124,7 @@ function OM(a, b)
         end
     end
     return result
-end
+end;
 
 # train = train dataframe
 # table = probabilities dataframe
@@ -164,7 +164,7 @@ function VDM(train, table, a, b)
     end
     result = sqrt(result)
     return result
-end
+end;
 
 # k = neighbor(s)
 # train = train dataframe
@@ -213,13 +213,71 @@ function kNN(k, train, test, flag, dist, T)
         end
     end
     return classes
-end
+end;
 
+function joinBds(name,test)
+    flag = 0
+    train = NA
+    for i in (1:5)
+        if (i != test)
+
+            if (flag != 0)
+                aux = readtable(string("bds//",name,"_",i,".csv"),separator = ',', header = false);
+                train = vcat(train,aux);
+            else
+                train = readtable(string("bds//",name,"_",i,".csv"),separator = ',', header = false);
+            end
+            flag = 1
+        end
+    end
+    test = readtable(string("bds//",name,"_",test,".csv"),separator = ',', header = false);
+    return train, test;
+end;
 
 ######################################
 #                Main                #
 ######################################
-# println("\n\n** INÍCIO LVDM **")
+println("\n\n** INÍCIO RUN TEST **")
+
+bds = ["db_tictactoe"]
+
+dists = ["OM"]
+
+#inicializando vetor de acuracia
+accuracy = Vector(length(bds))
+aux = Vector(length(dists))
+for i in (1:length(dists))
+    aux[i] = Vector(5)
+end
+for i in (1:length(accuracy))
+    accuracy[i] = aux
+end
+
+k = 10
+for bd in (1:length(bds))
+    for i in (1:5)
+        train, test = joinBds(bds[bd],i)
+        train = prettyDf(train, ncol(train)) #Put "Class" column on DF
+        test = prettyDf(test, ncol(test)) #Put "Class" column on DF
+        attributes = map((x) -> string(x), names(train))
+        attributes = attributes[1:(length(attributes) - 1)] #Take out the class
+
+        for dist in (1:length(dists))
+            tree = NA
+            if (dists[dist] == "LVDM")
+                tree = Tree([])
+                attrs = copy(attributes)
+                q = 4
+                instances = collect(1:1:nrow(train))
+                growTree(tree,train,instances, 1, q, attrs)
+            end
+            classes1 = @time(kNN(k, train, test, true, dists[dist], tree))
+            accuracy1 = mean(classes1 .== test[ncol(test)])
+            accuracy[bd][dist][i] = accuracy1
+        end
+    end
+end
+
 # train = readtable("db_train.csv", separator = ',', header = false)
 # test = readtable("db_test.csv", separator = ',', header = false)
 # train = prettyDf(train, ncol(train)) #Put "Class" column on DF
@@ -227,35 +285,35 @@ end
 # attributes = map((x) -> string(x), names(train))
 # attributes = attributes[1:(length(attributes) - 1)] #Take out the class
 # k = 10
-# # classes1 = @time(kNN(k, train, test, true, "VDM")) #0.85
-# # accuracy1 = mean(classes1 .== test[ncol(test)])
-# # classes2 = @time(kNN(k, train, test, true, "OM"))
-# # accuracy2 = mean(classes2 .== test[ncol(test)])
+# classes1 = @time(kNN(k, train, test, true, "VDM", 0)) #0.85
+# accuracy1 = mean(classes1 .== test[ncol(test)])
+# classes2 = @time(kNN(k, train, test, true, "OM", 0))
+# accuracy2 = mean(classes2 .== test[ncol(test)])
 # tree = Tree([]) #Create global tree
 # classes3 = @time(kNN(k, train, test, false, "LVDM"))
 # accuracy3 = mean(classes3 .== test[ncol(test)])
-# # open("result.txt", "w") do f
-# #     write(f, accuracy)
-# # end
+# open("result.txt", "w") do f
+#     write(f, accuracy)
+# end
 # println("Árvore: ")
-# # for i in 1:length(tree.nodes)
-# #     println(tree.nodes[i])
-# # end
-
-########## TEST ####################################################################################
-# criação da árvore global
-tree = Tree([])
-train = readtable("db.csv", separator = ',', header = false)
-# lista de atributos que vai ser modificada conforme a árvore vai sendo construida GLOBAL
-attributes = map((x) -> string(x), names(train))
-attributes = attributes[1:(length(attributes) - 1)] #tira classe
-attrs = copy(attributes)
-q = 4
-instances = collect(1:1:nrow(train))
-growTree(instances, 1, q, attrs)
-
-println("Árvore: ")
-for i in 1:length(tree.nodes)
-    println(tree.nodes[i])
-end
-####################################################################################################
+# for i in 1:length(tree.nodes)
+#     println(tree.nodes[i])
+# end
+#
+# ########## TEST ####################################################################################
+# # criação da árvore global
+# tree = Tree([])
+# train = readtable("db.csv", separator = ',', header = false)
+# # lista de atributos que vai ser modificada conforme a árvore vai sendo construida GLOBAL
+# attributes = map((x) -> string(x), names(train))
+# attributes = attributes[1:(length(attributes) - 1)] #tira classe
+# attrs = copy(attributes)
+# q = 4
+# instances = collect(1:1:nrow(train))
+# growTree(tree,train,instances, 1, q, attrs)
+#
+# println("Árvore: ")
+# for i in 1:length(tree.nodes)
+#     println(tree.nodes[i])
+# end
+# ####################################################################################################

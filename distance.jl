@@ -2,7 +2,7 @@ using DataFrames
 
 function getColumnValues(dfTable, column)
     return convert(Array,sort(levels(dfTable[column])));
-end
+end;
 
 function I_Pc(df)
     classes = getColumnValues(df,ncol(df))
@@ -17,7 +17,7 @@ function I_Pc(df)
         end
     end
     return -result
-end
+end;
 
 function I_PAi(df,attribute)
     values = getColumnValues(df,attribute)
@@ -32,8 +32,7 @@ function I_PAi(df,attribute)
         end
     end
     return -result
-
-end
+end;
 
 function I_Pc_inter_PAi(df, attribute)
     classes = getColumnValues(df,ncol(df))
@@ -55,13 +54,13 @@ function I_Pc_inter_PAi(df, attribute)
         end
     end
     return - result
-end
+end;
 
 function treeDistance(df,attribute)
     term1 = I_Pc(df)/I_Pc_inter_PAi(df, attribute)
     term2 = I_PAi(df, attribute)/I_Pc_inter_PAi(df, attribute)
     return 2 - term1 - term2
-end
+end;
 # df = readtable("db.csv", separator = ',', header = false);
 
 # println(I_Pc(df))

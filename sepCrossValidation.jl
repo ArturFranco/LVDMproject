@@ -1,9 +1,9 @@
 using DataFrames
 
-bds = ["balance-scale","car","connect-4","mushroom"];
+bds = ["db_tictactoe"];
 k = 5
 for bd in bds
-    df = readtable(string("bds//",bd,".data"), separator = ',',header=false)
+    df = readtable(string(bd,".data"), separator = ',',header=false)
     srand(nrow(df))
     df[:id] = rand(nrow(df))
 
@@ -15,10 +15,10 @@ for bd in bds
         if (i != k)
             interval = Int32(i*rows-rows+1):Int32(i*rows)
             #print(interval)
-            writetable(string("bds//",bd,i,".csv"),df[interval,:],separator=',',header=false)
+            writetable(string("bds//",bd,"_",i,".csv"),df[interval,:],separator=',',header=false)
         else
             interval = Int32(i*rows-rows+1):Int32(nrow(df))
-            writetable(string("bds//",bd,i,".csv"),df[interval,:],separator=',',header=false)
+            writetable(string("bds//",bd,"_",i,".csv"),df[interval,:],separator=',',header=false)
         end
         #print(interval)
     end
