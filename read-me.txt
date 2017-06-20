@@ -1,0 +1,17 @@
+""""""""""""""""""""""""""""""""""""""""""""""
+		LVDM PROJECT
+""""""""""""""""""""""""""""""""""""""""""""""
+A implementação está dividida entre vários arquivos:
+lvdm.jl é o arquivo principal, o executando ele executará o crossValidation em todos os datasets usados e guardará na variável "accuracy" o resultado de todas as execuções do crossValidation para o OM,VDM e LVDM, respec.
+
+Ex:
+[0.84,0.84,0.832,0.808,0.784];[0.888,0.824,0.824,0.864,0.84];[0.824,0.792,0.776,0.8,0.792]
+o primeiro vetor teria os resultados de cada uma das 5 execuções do OM, o segundo vetor para o VDM e o terceiro para o LVDM.
+
+tree.jl contém a implementação da construção e busca da árvore utilizada pelo LVDM
+
+distance.jl contém a implementação da distancia utilizada na construção da árvore
+
+SepCrossValidation.jl serve para tratamento dos bds a serem testados.
+
+Para executar o programa, basta abrir um console julia na pasta principal do projeto e usar "include("lvdm.jl")" no console julia.

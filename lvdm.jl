@@ -234,7 +234,7 @@ end;
 ######################################
 println("\n\n** INÍCIO RUN TEST **")
 
-bds = ["zoo","breast-cancer","primary-tumor"];
+bds = ["balance-scale","car","monks1","monks2","mushroom","zoo","breast-cancer","primary-tumor"];
 #"balance-scale","car","monks1","monks2","mushroom","zoo","breast-cancer","primary-tumor"
 dists = ["OM","VDM","LVDM"]
 #"OM","VDM","LVDM"
@@ -264,8 +264,6 @@ for bd in (1:length(bds))
             tree = NA
             q = Any
 
-
-
             if (dists[dist] == "LVDM")
                 tree = Tree([])
                 attrs = copy(attributes)
@@ -282,42 +280,3 @@ for bd in (1:length(bds))
     end
 end
 
-# train = readtable("db_train.csv", separator = ',', header = false)
-# test = readtable("db_test.csv", separator = ',', header = false)
-# train = prettyDf(train, ncol(train)) #Put "Class" column on DF
-# test = prettyDf(test, ncol(test)) #Put "Class" column on DF
-# attributes = map((x) -> string(x), names(train))
-# attributes = attributes[1:(length(attributes) - 1)] #Take out the class
-# k = 10
-# classes1 = @time(kNN(k, train, test, true, "VDM", 0)) #0.85
-# accuracy1 = mean(classes1 .== test[ncol(test)])
-# classes2 = @time(kNN(k, train, test, true, "OM", 0))
-# accuracy2 = mean(classes2 .== test[ncol(test)])
-# tree = Tree([]) #Create global tree
-# classes3 = @time(kNN(k, train, test, false, "LVDM"))
-# accuracy3 = mean(classes3 .== test[ncol(test)])
-# open("result.txt", "w") do f
-#     write(f, accuracy)
-# end
-# println("Árvore: ")
-# for i in 1:length(tree.nodes)
-#     println(tree.nodes[i])
-# end
-#
-# ########## TEST ####################################################################################
-# # criação da árvore global
-# tree = Tree([])
-# train = readtable("db.csv", separator = ',', header = false)
-# # lista de atributos que vai ser modificada conforme a árvore vai sendo construida GLOBAL
-# attributes = map((x) -> string(x), names(train))
-# attributes = attributes[1:(length(attributes) - 1)] #tira classe
-# attrs = copy(attributes)
-# q = 4
-# instances = collect(1:1:nrow(train))
-# growTree(tree,train,instances, 1, q, attrs)
-#
-# println("Árvore: ")
-# for i in 1:length(tree.nodes)
-#     println(tree.nodes[i])
-# end
-# ####################################################################################################

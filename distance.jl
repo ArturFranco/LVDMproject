@@ -61,15 +61,4 @@ function treeDistance(df,attribute)
     term2 = I_PAi(df, attribute)/I_Pc_inter_PAi(df, attribute)
     return 2 - term1 - term2
 end;
-# df = readtable("db.csv", separator = ',', header = false);
 
-# println(I_Pc(df))
-# println(I_PAi(df,1))
-# println(I_Pc_inter_PAi(df,1))
-# println(treeDistance(df,1))
-
-# distances = []
-# for col in 1:(ncol(df)-1)
-#     push!(distances, treeDistance(df,col))
-# end
-# print(distances)

@@ -102,30 +102,3 @@ function searchTree(train, Tree, q, y)
     return result
 end;
 
-# tree = Tree([])
-# train = readtable("db.csv", separator = ',', header = false)
-# # lista de atributos que vai ser modificada conforme a árvore vai sendo construida GLOBAL
-# attributes = map((x) -> string(x), names(train))
-# attributes = attributes[1:(length(attributes) - 1)] #tira classe
-# attrs = copy(attributes)
-# q = 4
-# instances = collect(1:1:nrow(train))
-# growTree(tree,train,instances, 1, q, attrs)
-#
-# println("Árvore: ")
-# for i in 1:length(tree.nodes)
-#     println(tree.nodes[i])
-# end
-#
-# aux = train[1,:]
-# aux[1,1] = "chuva"
-# aux[1,2] = "normal" # não usa
-# aux[1,3] = "elevada"
-# aux[1,4] = "forte"
-# print(aux)
-# vet = searchTree(train,tree, 2, aux)
-# println(vet)
-# parent::Int # vector ID of parent node
-# value::String # "attribute_value"
-# instances::Vector{Int}
-# children::Vector{Int} # vector IDs of children nodes
